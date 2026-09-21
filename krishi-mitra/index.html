@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KrishiMitra - AI Crop Recommendation System | Government of Jharkhand</title>
+  <meta name="description"
+    content="AI-powered crop recommendation, disease detection, and yield forecasting for farmers in Jharkhand." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://use.typekit.net/yjp3aho.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sofia: ['sofia-pro', 'sans-serif'],
+          },
+          colors: {
+            'jharkhand-green': '#228B22',
+            'jharkhand-orange': '#FF8C00',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="font-sofia bg-gradient-to-br from-green-50 to-blue-50 min-h-screen text-gray-900">
+  <canvas id="field-bg" class="fixed inset-0 -z-30 w-full h-full pointer-events-none"></canvas>
+
+  <!-- Navbar -->
+  <nav
+    class="fixed w-full top-0 z-50 relative backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/80 border-b border-white/30">
+    <div class="container mx-auto px-4 flex items-center justify-between h-16">
+      <a href="#" class="flex items-center space-x-2">
+        <i data-lucide="sprout" class="w-6 h-6 text-jharkhand-green"></i>
+        <span class="font-bold text-xl text-jharkhand-green">KrishiMitra</span>
+      </a>
+      <div class="hidden md:flex space-x-8 font-medium text-gray-700">
+        <a href="#hero-section" class="hover:text-jharkhand-green">Home</a>
+        <a href="#quick-actions-section" class="hover:text-jharkhand-green">Solutions</a>
+        <a href="#language-section" class="hover:text-jharkhand-green">Languages</a>
+        <a href="#data-sources-section" class="hover:text-jharkhand-green">Data Sources</a>
+        <a href="#site-footer" class="hover:text-jharkhand-green">Contact</a>
+      </div>
+      <button id="menu-btn" class="md:hidden">
+        <i data-lucide="menu" class="w-6 h-6 text-gray-700"></i>
+      </button>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+      <div class="flex flex-col space-y-2 p-4 text-gray-700 font-medium">
+        <a href="#hero-section" class="hover:text-jharkhand-green">Home</a>
+        <a href="#quick-actions-section" class="hover:text-jharkhand-green">Solutions</a>
+        <a href="#language-section" class="hover:text-jharkhand-green">Languages</a>
+        <a href="#data-sources-section" class="hover:text-jharkhand-green">Data Sources</a>
+        <a href="#site-footer" class="hover:text-jharkhand-green">Contact</a>
+      </div>
+    </div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-jharkhand-green via-emerald-400 to-jharkhand-orange opacity-80">
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero-section" class="relative pt-24 pb-20 min-h-[80vh] flex items-center">
+    <div class="container mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+        <div>
+          <!-- Language Toggle -->
+          <div class="mb-6 flex flex-wrap items-center gap-4">
+            <div
+              class="inline-flex items-center bg-jharkhand-green/10 text-jharkhand-green px-4 py-2 rounded-full text-sm font-medium border border-green-200">
+              <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i>
+              <span id="hero-badge">झारखंड सरकार की पहल</span>
+            </div>
+            <div class="inline-flex rounded-full p-1 bg-white/20 border border-gray-300 backdrop-blur">
+              <button id="lang-hi" class="px-4 py-1.5 text-sm rounded-full transition bg-jharkhand-green text-white"
+                onclick="setLang('hi')">हिंदी</button>
+              <button id="lang-en" class="px-4 py-1.5 text-sm rounded-full transition text-gray-700"
+                onclick="setLang('en')">English</button>
+            </div>
+          </div>
+
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <span class="block" id="hero-title-hi">कृषि मित्र</span>
+            <span class="block text-jharkhand-green">KrishiMitra</span>
+          </h1>
+
+          <p class="text-lg md:text-xl text-gray-600 leading-relaxed mt-4 max-w-3xl" id="hero-tagline">
+            एआई आधारित फसल सिफारिश, रोग पहचान और उपज पूर्वानुमान
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4 mt-8">
+            <a href="../crop-recommendation.html"
+              class="bg-jharkhand-green text-white px-8 py-4 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center shadow-lg shadow-emerald-900/30">
+              <i data-lucide="sprout" class="w-5 h-5 mr-2"></i>
+              <span id="hero-btn1">फसल सुझाव प्राप्त करें</span>
+            </a>
+            <a href="../disease-detection.html"
+              class="border-2 border-jharkhand-green text-jharkhand-green px-8 py-4 rounded-lg font-semibold hover:bg-jharkhand-green hover:text-white transition flex items-center justify-center">
+              <i data-lucide="camera" class="w-5 h-5 mr-2"></i>
+              <span id="hero-btn2">रोग पहचान</span>
+            </a>
+          </div>
+
+          <!-- Animated Stats -->
+          <div class="grid grid-cols-3 gap-6 pt-10">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-jharkhand-green"><span id="stat-farmers"></span></div>
+              <div class="text-sm text-gray-600" id="stat-farmers-label"></div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-jharkhand-green"><span id="stat-accuracy"></span></div>
+              <div class="text-sm text-gray-600" id="stat-accuracy-label"></div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-jharkhand-green"><span id="stat-districts"></span></div>
+              <div class="text-sm text-gray-600" id="stat-districts-label"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
+            <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=1200&q=80"
+              alt="Smart farming technology"
+              class="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+          </div>
+          <div class="absolute -top-4 -right-4 w-24 h-24 bg-jharkhand-orange rounded-full blur-2xl opacity-40"></div>
+          <div class="absolute -bottom-4 -left-4 w-32 h-32 bg-jharkhand-green rounded-full blur-2xl opacity-40"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Action Cards -->
+  <section class="py-16 bg-transparent" id="quick-actions-section">
+    <div class="container mx-auto px-4">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
+          Smart Farming Solutions
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <a href="../crop-recommendation.html"
+            class="block bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl border-2 border-green-200 hover:shadow-lg transition-shadow">
+            <div class="w-16 h-16 bg-jharkhand-green rounded-lg flex items-center justify-center mb-6">
+              <i data-lucide="sprout" class="w-8 h-8 text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Crop Recommendation</h3>
+            <p class="text-gray-600 mb-4">
+              Get AI-powered recommendations based on soil data, weather patterns, and market trends
+            </p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>Soil analysis
+                integration</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>Weather
+                forecast analysis</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>Market price
+                predictions</li>
+            </ul>
+          </a>
+
+          <a href="../disease-detection.html"
+            class="block bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-xl border-2 border-orange-200 hover:shadow-lg transition-shadow">
+            <div class="w-16 h-16 bg-jharkhand-orange rounded-lg flex items-center justify-center mb-6">
+              <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Disease Detection</h3>
+            <p class="text-gray-600 mb-4">
+              Instant plant disease identification using AI-powered image analysis
+            </p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-orange-500 mr-2"></i>Real-time
+                image scanning</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-orange-500 mr-2"></i>Treatment
+                recommendations</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-orange-500 mr-2"></i>Prevention
+                strategies</li>
+            </ul>
+          </a>
+
+          <div id="yield-prediction-card"
+            onclick="document.getElementById('coming-soon-modal').classList.remove('hidden')"
+            class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-shadow cursor-pointer">
+            <div class="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center mb-6">
+              <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Yield Prediction</h3>
+            <p class="text-gray-600 mb-4">
+              Forecast crop yields and potential profits using advanced ML algorithms
+            </p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-blue-500 mr-2"></i>Historical
+                data analysis</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-blue-500 mr-2"></i>Profit margin
+                calculations</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-blue-500 mr-2"></i>Risk
+                assessment</li>
+            </ul>
+          </div>
+
+          <a href="#market-analysis"
+            class="block bg-gradient-to-br from-amber-50 to-amber-100 p-8 rounded-xl border-2 border-amber-200 hover:shadow-lg transition-shadow">
+            <div class="w-16 h-16 bg-amber-500 rounded-lg flex items-center justify-center mb-6">
+              <i data-lucide="bar-chart-3" class="w-8 h-8 text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-gray-900">Market Analysis</h3>
+            <p class="text-gray-600 mb-4">
+              Analyze market demand, price trends, and logistics to optimize crop sales timing
+            </p>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-amber-500 mr-2"></i>Real-time
+                price trends</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-amber-500 mr-2"></i>Demand
+                forecasting</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-amber-500 mr-2"></i>Best market
+                suggestions</li>
+            </ul>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Language Support -->
+  <section class="py-16 bg-gradient-to-r from-jharkhand-green/10 to-jharkhand-orange/10" id="language-section">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-bold mb-6 text-gray-900">स्थानीय भाषा समर्थन | Local Language Support</h2>
+        <p class="text-lg text-gray-600 mb-8">
+          Available in multiple languages to serve farmers across Jharkhand
+        </p>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="text-2xl mb-2">🇮🇳</div>
+            <div class="font-semibold text-gray-900">हिंदी</div>
+            <div class="text-sm text-gray-600">Hindi</div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="text-2xl mb-2">🏛️</div>
+            <div class="font-semibold text-gray-900">বাংলা</div>
+            <div class="text-sm text-gray-600">Bengali</div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="text-2xl mb-2">🌾</div>
+            <div class="font-semibold text-gray-900">ᱥᱟᱱᱛᱟᱲᱤ</div>
+            <div class="text-sm text-gray-600">Santhali</div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="text-2xl mb-2">🌍</div>
+            <div class="font-semibold text-gray-900">English</div>
+            <div class="text-sm text-gray-600">English</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Sources -->
+  <section class="py-16 bg-transparent" id="data-sources-section">
+    <div class="container mx-auto px-4">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">Powered by Reliable Data Sources</h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+              <i data-lucide="satellite" class="w-8 h-8 text-blue-600"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">ISRO Bhuvan</h3>
+            <p class="text-sm text-gray-600">Satellite imagery and soil data</p>
+          </div>
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+              <i data-lucide="cloud-rain" class="w-8 h-8 text-green-600"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">IMD Weather</h3>
+            <p class="text-sm text-gray-600">Meteorological forecasts</p>
+          </div>
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-8 h-8 text-orange-600"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">eNAM</h3>
+            <p class="text-sm text-gray-600">Market prices and trends</p>
+          </div>
+          <div class="text-center">
+            <div class="w-20 h-20 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+              <i data-lucide="cpu" class="w-8 h-8 text-purple-600"></i>
+            </div>
+            <h3 class="font-bold text-gray-900 mb-2">IoT Sensors</h3>
+            <p class="text-sm text-gray-600">Real-time soil monitoring</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="market-analysis" class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-5xl mx-auto bg-white/80 backdrop-blur rounded-2xl border border-gray-200 p-10 shadow-sm">
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-1">
+          <i data-lucide="bar-chart-3" class="w-6 h-6 text-amber-600"></i>
+          <h2 class="text-2xl font-bold text-gray-900">Crop Market Price Trends</h2>
+        </div>
+        <p class="text-sm text-gray-500 mb-6">India — indicative MSP / mandi prices in ₹ per quintal (2005–2024)</p>
+
+        <!-- Chart type toggle -->
+        <div class="flex gap-2 mb-4">
+          <button id="ma-btn-line" onclick="setMarketChartType('line')"
+            class="px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-amber-100 text-amber-800 border-amber-300">Line
+            chart</button>
+          <button id="ma-btn-bar" onclick="setMarketChartType('bar')"
+            class="px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-transparent text-gray-500 border-gray-300">Bar
+            chart</button>
+        </div>
+
+        <!-- Year range -->
+        <div class="flex items-center gap-3 flex-wrap mb-4">
+          <span class="text-sm text-gray-500">Year range:</span>
+          <input type="range" id="ma-yr-from" min="2005" max="2023" value="2005" step="1" oninput="updateMarketRange()"
+            class="flex-1 min-w-[120px] max-w-[200px] accent-amber-500 cursor-pointer" />
+          <input type="range" id="ma-yr-to" min="2006" max="2024" value="2024" step="1" oninput="updateMarketRange()"
+            class="flex-1 min-w-[120px] max-w-[200px] accent-amber-500 cursor-pointer" />
+          <span id="ma-yr-label" class="text-sm font-semibold text-gray-800 min-w-[90px]">2005 – 2024</span>
+        </div>
+
+        <!-- Crop toggle buttons -->
+        <div class="flex flex-wrap gap-2 mb-5" id="ma-crop-btns"></div>
+
+        <!-- Stat cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6" id="ma-stats-row"></div>
+
+        <!-- Chart -->
+        <div class="relative w-full h-[360px] mb-3">
+          <canvas id="marketTrendChart" role="img"
+            aria-label="Chart showing crop price trends in India from 2005 to 2024."></canvas>
+        </div>
+
+        <p class="text-xs text-gray-400 text-right">Data source: Agmarknet / MSP announcements (indicative)</p>
+      </div>
+    </div>
+  </section>
+
+  <footer id="site-footer" class="relative bg-gradient-to-br from-gray-900 via-gray-900 to-black text-white mt-0">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div class="absolute -top-10 -left-10 w-64 h-64 bg-jharkhand-green/20 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-jharkhand-orange/20 rounded-full blur-3xl"></div>
+    </div>
+    <div class="container mx-auto px-4 pt-16 pb-8 relative">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <i data-lucide="sprout" class="w-7 h-7 text-jharkhand-green"></i>
+            <span class="font-bold text-xl">KrishiMitra</span>
+          </div>
+          <p class="text-white/80 text-sm leading-relaxed">
+            An AI-powered initiative by Government of Jharkhand to enable smart, sustainable farming with crop
+            recommendations, disease detection, and yield forecasting.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-white">Quick Links</h4>
+          <ul class="space-y-2 text-white/80 text-sm">
+            <li><a class="hover:text-white" href="#hero-section">Home</a></li>
+            <li><a class="hover:text-white" href="#quick-actions-section">Solutions</a></li>
+            <li><a class="hover:text-white" href="#language-section">Languages</a></li>
+            <li><a class="hover:text-white" href="#data-sources-section">Data Sources</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4 text-white">Contact</h4>
+          <ul class="space-y-2 text-white/80 text-sm">
+            <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> Mohali,Punjab</li>
+            <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> gauravpandey36199@gmail.com
+            </li>
+            <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i>7409356212</li>
+          </ul>
+        </div>
+        <div>
+
+          <h4 class="font-semibold mb-4 text-white">Connect</h4>
+          <div class="flex gap-3">
+            <script src="https://unpkg.com/lucide@latest/dist/lucide-tree.js"></script>
+            <script>
+              lucide.createIcons();
+            </script>
+            <!-- Resume -->
+            <a href="https://drive.google.com/file/d/1aDY8XogCYtq4L-zvorzBrc3aDatqj9oA/view?usp=sharing" target="_blank"
+              title="Resume"
+              class="p-2 rounded-full border border-white/20 hover:bg-white/10 hover:scale-110 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <line x1="10" y1="9" x2="8" y2="9" />
+              </svg>
+            </a>
+
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/in/gaurav-pandey-1a155b2a3/" target="_blank" title="LinkedIn"
+              class="p-2 rounded-full border border-white/20 hover:bg-white/10 hover:scale-110 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor">
+                <path
+                  d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4v12h-4zM7 8h3.6v1.7h.05c.5-.9 1.7-1.8 3.5-1.8 3.7 0 4.4 2.4 4.4 5.5V20h-4v-5.3c0-1.3 0-3-1.9-3s-2.2 1.5-2.2 2.9V20H7z" />
+              </svg>
+            </a>
+
+            <!-- GitHub -->
+            <a href="https://github.com/Gauravpandey0025" target="_blank" title="GitHub"
+              class="p-2 rounded-full border border-white/20 hover:bg-white/10 hover:scale-110 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor">
+                <path
+                  d="M12 .5C5.7.5.7 5.6.7 11.9c0 5 3.2 9.3 7.7 10.8.6.1.8-.3.8-.6v-2.3c-3.1.7-3.8-1.3-3.8-1.3-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 .1.6 1.5 2.7 1.8.1-.7.4-1.2.7-1.5-2.5-.3-5.2-1.3-5.2-5.6 0-1.2.4-2.2 1.2-3-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2.9-.3 1.9-.4 2.9-.4s2 .1 2.9.4c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3 0 4.3-2.7 5.3-5.2 5.6.4.3.8 1 .8 2v3c0 .3.2.7.8.6 4.5-1.5 7.7-5.8 7.7-10.8C23.3 5.6 18.3.5 12 .5z" />
+              </svg>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/YOUR_USERNAME" target="_blank" title="Instagram"
+              class="p-2 rounded-full border border-white/20 hover:bg-white/10 hover:scale-110 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor">
+                <path
+                  d="M7.75 2C4.57 2 2 4.57 2 7.75v8.5C2 19.43 4.57 22 7.75 22h8.5C19.43 22 22 19.43 22 16.25v-8.5C22 4.57 19.43 2 16.25 2h-8.5zm0 2h8.5C18.22 4 20 5.78 20 7.75v8.5c0 1.97-1.78 3.75-3.75 3.75h-8.5C5.78 20 4 18.22 4 16.25v-8.5C4 5.78 5.78 4 7.75 4zm8.75 1.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
+              </svg>
+            </a>
+
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="mt-10 border-t border-white/10 pt-6 text-center text-white/70 text-sm">
+      © 2025 Government of Jharkhand · KrishiMitra. All rights reserved.
+    </div>
+    </div>
+  </footer>
+
+  <!-- Coming Soon Modal -->
+  <div id="coming-soon-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4"
+    onclick="if(event.target===this)this.classList.add('hidden')">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+    <!-- Modal Card -->
+    <div
+      class="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/40 max-w-md w-full p-10 text-center animate-[modalPop_0.3s_ease-out]">
+      <div
+        class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30">
+        <i data-lucide="rocket" class="w-10 h-10 text-white"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">Coming Soon!</h3>
+      <p class="text-gray-600 mb-6 leading-relaxed">
+        We're working hard to bring you AI-powered <strong>Yield Prediction</strong>. Stay tuned for accurate crop yield
+        forecasting and profit estimates!
+      </p>
+      <div class="flex items-center justify-center gap-2 text-sm text-blue-600 bg-blue-50 rounded-lg py-2 px-4 mb-6">
+        <i data-lucide="clock" class="w-4 h-4"></i>
+        <span>Expected launch: Coming Soon</span>
+      </div>
+      <button onclick="document.getElementById('coming-soon-modal').classList.add('hidden')"
+        class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-600/30">
+        Got it!
+      </button>
+    </div>
+  </div>
+
+  <style>
+    @keyframes modalPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+  </style>
+
+  <!-- All JS — no React, no Babel needed -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Icons
+      try { window.lucide?.createIcons(); } catch (e) { }
+
+      // Re-init icons inside the modal when it becomes visible
+      const yieldCard = document.getElementById('yield-prediction-card');
+      if (yieldCard) {
+        yieldCard.addEventListener('click', () => {
+          setTimeout(() => { try { window.lucide?.createIcons(); } catch (e) { } }, 50);
+        });
+      }
+
+      // Mobile menu
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+      }
+
+
+
+      // ── Farm-themed animated background ──
+      const bg = document.getElementById('field-bg');
+      if (bg) {
+        const ctx = bg.getContext('2d');
+        let dpr = Math.min(window.devicePixelRatio || 1, 2);
+        let W = 0, H = 0, raf;
+        let clouds = [];
+        let blades = [];
+
+        function resize() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          bg.style.width = w + 'px';
+          bg.style.height = h + 'px';
+          bg.width = Math.floor(w * dpr);
+          bg.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          W = w; H = h;
+          initScene();
+        }
+
+        function initScene() {
+          const count = Math.max(6, Math.min(14, Math.floor(W / 160)));
+          clouds = Array.from({ length: count }, () => ({
+            x: Math.random() * W,
+            y: Math.random() * (H * 0.35),
+            s: 0.6 + Math.random() * 0.9,
+            v: 0.15 + Math.random() * 0.25,
+          }));
+          const spacing = 14;
+          blades = Array.from({ length: Math.floor(W / spacing) + 4 }, (_, i) => ({
+            x: i * spacing,
+            h: 50 + Math.random() * 70,
+            a: Math.random() * Math.PI * 2,
+            col: Math.random() < 0.6 ? '#3DAA3D' : '#77C277',
+          }));
+        }
+
+        function skyGradient() {
+          const g = ctx.createLinearGradient(0, 0, 0, H);
+          g.addColorStop(0, '#e6faff');
+          g.addColorStop(0.6, '#f2ffe9');
+          g.addColorStop(1, '#ffffff');
+          return g;
+        }
+
+        function drawHills() {
+          ctx.fillStyle = '#bfe7bf';
+          ctx.beginPath();
+          ctx.moveTo(0, H * 0.7);
+          for (let x = 0; x <= W; x += 20) {
+            ctx.lineTo(x, H * 0.7 + Math.sin(x * 0.004) * 12 + Math.cos(x * 0.002) * 8);
+          }
+          ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+
+          ctx.fillStyle = '#9fd79f';
+          ctx.beginPath();
+          ctx.moveTo(0, H * 0.8);
+          for (let x = 0; x <= W; x += 20) {
+            ctx.lineTo(x, H * 0.8 + Math.sin(x * 0.006) * 16 + Math.cos(x * 0.003) * 10);
+          }
+          ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+        }
+
+        function drawCloud(c) {
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.scale(c.s, c.s);
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.beginPath();
+          ctx.arc(0, 0, 22, 0, Math.PI * 2);
+          ctx.arc(24, -6, 18, 0, Math.PI * 2);
+          ctx.arc(46, 0, 20, 0, Math.PI * 2);
+          ctx.arc(22, 10, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawBlades(time) {
+          ctx.lineWidth = 2;
+          blades.forEach((b, i) => {
+            const sway = Math.sin(time * 0.002 + b.a + i * 0.15) * 10;
+            ctx.strokeStyle = b.col;
+            ctx.beginPath();
+            ctx.moveTo(b.x, H);
+            ctx.bezierCurveTo(
+              b.x - sway * 0.2, H - b.h * 0.4,
+              b.x + sway * 0.5, H - b.h * 0.75,
+              b.x + sway, H - b.h
+            );
+            ctx.stroke();
+            ctx.fillStyle = '#d9b45b';
+            ctx.beginPath();
+            ctx.arc(b.x + sway, H - b.h, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        function step(t) {
+          ctx.clearRect(0, 0, W, H);
+          ctx.fillStyle = skyGradient();
+          ctx.fillRect(0, 0, W, H);
+          clouds.forEach(c => {
+            c.x += c.v * c.s;
+            if (c.x > W + 80) c.x = -80;
+            drawCloud(c);
+          });
+          drawHills();
+          drawBlades(t || 0);
+          raf = requestAnimationFrame(step);
+        }
+
+        window.addEventListener('resize', () => { dpr = Math.min(window.devicePixelRatio || 1, 2); resize(); });
+        resize();
+        step(0);
+      }
+    });
+
+    // ── Language toggle (vanilla) ──
+    const copy = {
+      en: {
+        badge: 'Government of Jharkhand Initiative',
+        titleHi: 'कृषि मित्र',
+        tagline: 'AI-powered crop recommendation with disease prediction , best yield prediction, and market analysis',
+        btn1: 'Get Crop Recommendations',
+        btn2: 'Disease Detection',
+
+      },
+      hi: {
+        badge: 'झारखंड सरकार की पहल',
+        titleHi: 'कृषि मित्र',
+        tagline: '“एआई-संचालित फसल अनुशंसा प्रणाली जिसमें रोग पूर्वानुमान, सर्वोत्तम उपज पूर्वानुमान और बाजार विश्लेषण शामिल है”',
+        btn1: 'फसल सुझाव प्राप्त करें',
+        btn2: 'रोग पहचान',
+
+      },
+    };
+
+    function setLang(lang) {
+      const t = copy[lang];
+      document.getElementById('hero-badge').textContent = t.badge;
+      document.getElementById('hero-title-hi').textContent = t.titleHi;
+      document.getElementById('hero-tagline').textContent = t.tagline;
+      document.getElementById('hero-btn1').textContent = t.btn1;
+      document.getElementById('hero-btn2').textContent = t.btn2;
+      document.getElementById('stat-farmers-label').textContent = t.farmers;
+      document.getElementById('stat-accuracy-label').textContent = t.accuracy;
+      document.getElementById('stat-districts-label').textContent = t.districts;
+
+      // Toggle button styles
+      const hi = document.getElementById('lang-hi');
+      const en = document.getElementById('lang-en');
+      if (lang === 'hi') {
+        hi.className = 'px-4 py-1.5 text-sm rounded-full transition bg-jharkhand-green text-white';
+        en.className = 'px-4 py-1.5 text-sm rounded-full transition text-gray-700';
+      } else {
+        en.className = 'px-4 py-1.5 text-sm rounded-full transition bg-jharkhand-green text-white';
+        hi.className = 'px-4 py-1.5 text-sm rounded-full transition text-gray-700';
+      }
+    }
+  </script>
+
+  <!-- Market Analysis Chart Script -->
+  <script>
+    (function () {
+      const MA_CROPS = [
+        { name: 'Wheat', color: '#185FA5' },
+        { name: 'Paddy/Rice', color: '#3B6D11' },
+        { name: 'Maize', color: '#BA7517' },
+        { name: 'Cotton', color: '#993556' },
+        { name: 'Sugarcane', color: '#0F6E56' },
+        { name: 'Soybean', color: '#534AB7' },
+        { name: 'Tomato', color: '#993C1D' },
+      ];
+
+      const MA_ALL_YEARS = Array.from({ length: 20 }, (_, i) => 2005 + i);
+
+      const MA_BASE = {
+        'Wheat': [640, 650, 700, 750, 780, 850, 1000, 1100, 1285, 1350, 1450, 1520, 1625, 1735, 1850, 1975, 2015, 2065, 2150, 2275],
+        'Paddy/Rice': [550, 570, 600, 650, 700, 760, 850, 920, 1010, 1080, 1210, 1300, 1360, 1450, 1550, 1660, 1750, 1850, 2060, 2183],
+        'Maize': [420, 440, 480, 520, 580, 620, 700, 760, 1175, 1250, 1175, 1310, 1175, 1310, 1325, 1425, 1700, 1850, 1962, 2090],
+        'Cotton': [1800, 2000, 2200, 2500, 3000, 3500, 3000, 4000, 5000, 4800, 3800, 3700, 4050, 3750, 3625, 4100, 5150, 5726, 6380, 7020],
+        'Sugarcane': [73, 74, 79, 81, 117, 130, 140, 162, 170, 210, 220, 230, 220, 230, 230, 230, 255, 275, 290, 315],
+        'Soybean': [800, 850, 950, 1050, 1200, 1600, 1400, 2200, 2500, 2600, 2500, 2500, 2500, 2600, 2775, 2775, 3950, 3950, 4600, 4892],
+        'Tomato': [400, 500, 600, 700, 900, 1200, 1800, 1400, 1600, 1200, 1300, 1100, 1400, 1800, 2200, 1500, 1800, 2400, 3200, 1800],
+      };
+
+      let maActiveCrops = new Set(MA_CROPS.map(c => c.name));
+      let maChartType = 'line';
+      let maChart;
+
+      function maGetSlice() {
+        const f = parseInt(document.getElementById('ma-yr-from').value);
+        const t = parseInt(document.getElementById('ma-yr-to').value);
+        return [MA_ALL_YEARS.indexOf(f), MA_ALL_YEARS.indexOf(t) + 1];
+      }
+
+      function maGetFilteredData() {
+        const [si, ei] = maGetSlice();
+        const years = MA_ALL_YEARS.slice(si, ei);
+        const datasets = MA_CROPS.filter(c => maActiveCrops.has(c.name)).map(c => ({
+          label: c.name,
+          data: MA_BASE[c.name].slice(si, ei),
+          borderColor: c.color,
+          backgroundColor: maChartType === 'bar' ? c.color + 'bb' : c.color + '22',
+          fill: maChartType === 'line',
+          tension: 0.35,
+          pointRadius: maChartType === 'line' ? 3 : 0,
+          pointHoverRadius: 5,
+          borderWidth: 2,
+        }));
+        return { years, datasets };
+      }
+
+      function maUpdateStats() {
+        const [si, ei] = maGetSlice();
+        const row = document.getElementById('ma-stats-row');
+        row.innerHTML = '';
+        MA_CROPS.filter(c => maActiveCrops.has(c.name)).forEach(c => {
+          const data = MA_BASE[c.name].slice(si, ei);
+          const first = data[0], last = data[data.length - 1];
+          const pct = Math.round(((last - first) / first) * 100);
+          const card = document.createElement('div');
+          card.className = 'bg-gray-50 rounded-lg p-3';
+          card.innerHTML = `
+            <div class="text-xs text-gray-500 mb-1">${c.name}</div>
+            <div class="text-lg font-semibold text-gray-900">₹${last.toLocaleString('en-IN')}</div>
+            <div class="text-xs mt-1 ${pct >= 0 ? 'text-green-700' : 'text-red-700'}">${pct >= 0 ? '+' : ''}${pct}% over period</div>
+          `;
+          row.appendChild(card);
+        });
+      }
+
+      function maRenderChart() {
+        const { years, datasets } = maGetFilteredData();
+        const gridColor = 'rgba(0,0,0,0.06)';
+        const tickColor = '#888';
+
+        if (maChart) maChart.destroy();
+
+        maChart = new Chart(document.getElementById('marketTrendChart'), {
+          type: maChartType,
+          data: { labels: years, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN')}/qtl`
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: tickColor, font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 },
+                grid: { color: gridColor },
+              },
+              y: {
+                ticks: {
+                  color: tickColor,
+                  font: { size: 11 },
+                  callback: v => '₹' + v.toLocaleString('en-IN')
+                },
+                grid: { color: gridColor },
+                title: { display: true, text: '₹ per quintal', color: tickColor, font: { size: 11 } }
+              }
+            }
+          }
+        });
+
+        maUpdateStats();
+      }
+
+      function maBuildCropBtns() {
+        const wrap = document.getElementById('ma-crop-btns');
+        MA_CROPS.forEach(c => {
+          const btn = document.createElement('button');
+          btn.className = 'flex items-center gap-1.5 px-3 py-1 rounded-full border-2 text-sm font-medium transition-all';
+          btn.dataset.crop = c.name;
+          btn.style.borderColor = c.color;
+          btn.style.backgroundColor = c.color;
+          btn.style.color = '#fff';
+          btn.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:rgba(255,255,255,0.8)"></span>${c.name}`;
+
+          btn.addEventListener('click', () => {
+            if (maActiveCrops.has(c.name)) {
+              if (maActiveCrops.size === 1) return;
+              maActiveCrops.delete(c.name);
+              btn.style.backgroundColor = 'transparent';
+              btn.style.color = c.color;
+              btn.querySelector('span').style.background = c.color;
+            } else {
+              maActiveCrops.add(c.name);
+              btn.style.backgroundColor = c.color;
+              btn.style.color = '#fff';
+              btn.querySelector('span').style.background = 'rgba(255,255,255,0.8)';
+            }
+            maRenderChart();
+          });
+
+          wrap.appendChild(btn);
+        });
+      }
+
+      // Expose to global for inline onclick handlers
+      window.updateMarketRange = function () {
+        let f = parseInt(document.getElementById('ma-yr-from').value);
+        let t = parseInt(document.getElementById('ma-yr-to').value);
+        if (f >= t) { f = t - 1; document.getElementById('ma-yr-from').value = f; }
+        document.getElementById('ma-yr-label').textContent = `${f} – ${t}`;
+        maRenderChart();
+      };
+
+      window.setMarketChartType = function (type) {
+        maChartType = type;
+        document.getElementById('ma-btn-line').className = type === 'line'
+          ? 'px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-amber-100 text-amber-800 border-amber-300'
+          : 'px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-transparent text-gray-500 border-gray-300';
+        document.getElementById('ma-btn-bar').className = type === 'bar'
+          ? 'px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-amber-100 text-amber-800 border-amber-300'
+          : 'px-4 py-1.5 rounded-lg border text-sm font-medium transition bg-transparent text-gray-500 border-gray-300';
+        maRenderChart();
+      };
+
+      // Init on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => { maBuildCropBtns(); maRenderChart(); });
+      } else {
+        maBuildCropBtns(); maRenderChart();
+      }
+    })();
+  </script>
+</body>
+
+</html>
