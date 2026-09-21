@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disease Detection | KrishiMitra - Government of Jharkhand</title>
+  <meta name="description" content="Upload a leaf photo to detect plant diseases using AI-powered image analysis." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://use.typekit.net/yjp3aho.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 'sofia': ['sofia-pro', 'sans-serif'] },
+          colors: {
+            'jharkhand-green': '#228B22',
+            'jharkhand-orange': '#FF8C00'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sofia bg-gradient-to-br from-orange-50 to-green-50 min-h-screen">
+
+  <main class="pt-20 pb-16">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+
+        <!-- Back link -->
+        <a href="index.html"
+          class="inline-flex items-center text-jharkhand-green hover:underline mb-8 text-sm font-medium">
+          <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Back to Home
+        </a>
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            AI Plant Disease Detection
+          </h1>
+          <p class="text-lg text-gray-600">
+            Upload a photo of a plant leaf and our AI model will identify if it has any disease
+          </p>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+
+          <div id="upload-area"
+            class="border-2 border-dashed border-orange-300 rounded-xl p-12 text-center cursor-pointer hover:border-jharkhand-orange hover:bg-orange-50/50 transition-all"
+            onclick="document.getElementById('file-input').click()">
+            <i data-lucide="upload-cloud" class="w-16 h-16 text-jharkhand-orange mx-auto mb-4"></i>
+            <p class="text-lg font-semibold text-gray-700 mb-2">Click to upload a leaf image</p>
+            <p class="text-sm text-gray-500">Supports JPG, PNG, WEBP — max 10 MB</p>
+            <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleFile(this)">
+          </div>
+
+          <!-- Preview -->
+          <div id="preview-container" class="hidden mt-6">
+            <div class="flex flex-col md:flex-row gap-6 items-start">
+              <div class="w-full md:w-1/2">
+                <img id="preview-img" class="w-full rounded-lg shadow-md" alt="Uploaded leaf" />
+              </div>
+              <div class="w-full md:w-1/2 flex flex-col gap-4">
+                <p class="text-sm text-gray-500" id="file-info"></p>
+                <button onclick="analyzeImage()"
+                  class="bg-jharkhand-orange text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition inline-flex items-center justify-center">
+                  <i data-lucide="scan" class="w-5 h-5 mr-2"></i>
+                  Analyze Leaf
+                </button>
+                <button onclick="resetUpload()"
+                  class="border border-gray-300 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-50 transition text-sm">
+                  Choose Different Image
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results-section" class="hidden"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+
+    let selectedFile = null;
+    let selectedBase64 = null;
+
+    // ── CONFIG ────────────────────────────────────────────────────────────────
+    // Hugging Face Space: pandeygaurav0025/disease_predictor
+    // Modern Gradio uses a 2-step SSE API under /gradio_api/call/<fn>
+    const HF_BASE = "https://pandeygaurav0025-disease-predictor.hf.space";
+    const HF_API_URL = `${HF_BASE}/gradio_api/call/lambda`;
+    // ─────────────────────────────────────────────────────────────────────────
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File too large. Max 10 MB.');
+        return;
+      }
+
+      selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        selectedBase64 = e.target.result; // full data-URL: "data:image/jpeg;base64,..."
+        document.getElementById('preview-img').src = selectedBase64;
+        document.getElementById('file-info').textContent =
+          `${file.name}  •  ${(file.size / 1024).toFixed(0)} KB`;
+        document.getElementById('preview-container').classList.remove('hidden');
+        document.getElementById('upload-area').classList.add('hidden');
+        document.getElementById('results-section').classList.add('hidden');
+        document.getElementById('results-section').innerHTML = '';
+        setTimeout(() => window.lucide?.createIcons(), 0);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetUpload() {
+      selectedFile = null;
+      selectedBase64 = null;
+      document.getElementById('file-input').value = '';
+      document.getElementById('preview-container').classList.add('hidden');
+      document.getElementById('upload-area').classList.remove('hidden');
+      document.getElementById('results-section').classList.add('hidden');
+      document.getElementById('results-section').innerHTML = '';
+      setTimeout(() => window.lucide?.createIcons(), 0);
+    }
+
+
+  async function analyzeImage() {
+  if (!selectedFile) {
+    alert("Please upload an image first.");
+    return;
+  }
+
+  const results = document.getElementById("results-section");
+  const HF_BASE = "https://pandeygaurav0025-disease-predictor.hf.space";
+  const HF_FN = "predict";
+
+  results.classList.remove("hidden");
+  results.innerHTML = `
+    <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+      <div class="animate-spin inline-block w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full mb-4"></div>
+      <p class="text-gray-600">Analyzing your leaf image...</p>
+    </div>
+  `;
+
+  try {
+    const formData = new FormData();
+    formData.append("files", selectedFile);
+
+    const uploadRes = await fetch(`${HF_BASE}/gradio_api/upload`, {
+      method: "POST",
+      body: formData
+    });
+
+    const uploadText = await uploadRes.text();
+    if (!uploadRes.ok) {
+      throw new Error(`Upload failed: ${uploadRes.status}\n${uploadText}`);
+    }
+
+    const uploadJson = JSON.parse(uploadText);
+
+    let uploadedPath = null;
+    if (Array.isArray(uploadJson) && typeof uploadJson[0] === "string") {
+      uploadedPath = uploadJson[0];
+    } else if (uploadJson?.files?.[0]) {
+      uploadedPath = uploadJson.files[0];
+    } else if (uploadJson?.path) {
+      uploadedPath = uploadJson.path;
+    }
+
+    if (!uploadedPath) {
+      throw new Error(`Could not find uploaded file path.\n${JSON.stringify(uploadJson, null, 2)}`);
+    }
+
+    const postRes = await fetch(`${HF_BASE}/gradio_api/call/${HF_FN}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: [
+          {
+            path: uploadedPath,
+            meta: { _type: "gradio.FileData" }
+          }
+        ]
+      })
+    });
+
+    const postText = await postRes.text();
+    if (!postRes.ok) {
+      throw new Error(`Prediction start failed: ${postRes.status}\n${postText}`);
+    }
+
+    const postJson = JSON.parse(postText);
+    const eventId = postJson.event_id;
+
+    if (!eventId) {
+      throw new Error(`No event_id returned.\n${JSON.stringify(postJson, null, 2)}`);
+    }
+
+    const resultRes = await fetch(`${HF_BASE}/gradio_api/call/${HF_FN}/${eventId}`);
+    const resultText = await resultRes.text();
+
+    if (!resultRes.ok) {
+      throw new Error(`Result fetch failed: ${resultRes.status}\n${resultText}`);
+    }
+
+    let disease = "";
+    let confidence = null;
+
+    for (const rawLine of resultText.split("\n")) {
+      const line = rawLine.trim();
+      if (!line.startsWith("data:")) continue;
+
+      const payloadText = line.replace(/^data:\s*/, "").trim();
+      if (!payloadText || payloadText === "null" || payloadText === "[DONE]") continue;
+
+      try {
+        const parsed = JSON.parse(payloadText);
+
+        if (Array.isArray(parsed) && parsed[0]?.label) {
+          disease = parsed[0].label;
+          confidence = parsed[0].confidence ?? null;
+          break;
+        }
+
+        if (parsed?.data?.[0]?.label) {
+          disease = parsed.data[0].label;
+          confidence = parsed.data[0].confidence ?? null;
+          break;
+        }
+
+        if (parsed?.label) {
+          disease = parsed.label;
+          confidence = parsed.confidence ?? null;
+          break;
+        }
+      } catch (e) {}
+    }
+
+    if (!disease) {
+      throw new Error(`Could not extract prediction.\n${resultText}`);
+    }
+
+    const isHealthy = disease.toLowerCase().includes("healthy");
+
+    results.innerHTML = `
+      <div class="bg-white rounded-xl shadow-lg overflow-visible">
+        <div class="px-8 py-5 ${isHealthy ? "bg-green-700" : "bg-red-700"}">
+          <h3 class="text-xl font-bold text-white">${isHealthy ? "Healthy Plant" : "Disease Detected"}</h3>
+        </div>
+        <div class="p-8">
+          <div class="text-center mb-6">
+            <div class="text-4xl font-bold ${isHealthy ? "text-green-700" : "text-red-700"} mb-2">
+              ${disease}
+            </div>
+            <p class="text-gray-500">AI Prediction Result</p>
+          </div>
+
+          ${confidence != null ? `
+            <div class="max-w-md mx-auto mb-6">
+              <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Model Confidence</span>
+                <span class="font-bold ${isHealthy ? "text-green-700" : "text-red-700"}">${Number(confidence).toFixed(1)}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="h-3 ${isHealthy ? "bg-green-500" : "bg-red-500"} rounded-full" style="width:${Math.min(Number(confidence), 100)}%"></div>
+              </div>
+            </div>
+          ` : ""}
+
+          ${!isHealthy ? `
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-yellow-800 mb-2">Recommended Actions</h4>
+              <ul class="text-sm text-yellow-700 space-y-1 list-disc list-inside">
+                <li>Consult your local agriculture officer for treatment options</li>
+                <li>Isolate affected plants to prevent spread</li>
+                <li>Apply appropriate fungicide or pesticide as recommended</li>
+                <li>Ensure proper irrigation and drainage</li>
+              </ul>
+            </div>
+          ` : `
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-green-800 mb-2">Your plant looks healthy!</h4>
+              <p class="text-sm text-green-700">Continue with your current care routine. Regular monitoring helps detect issues early.</p>
+            </div>
+          `}
+
+          <div class="text-center mt-6">
+            <button onclick="resetUpload()"
+              class="bg-jharkhand-orange text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-600 transition">
+              Analyze Another Image
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error(error);
+    results.innerHTML = `
+      <div class="bg-white rounded-xl shadow-lg p-8 border-l-4 border-red-500">
+        <h3 class="text-lg font-bold text-red-700">Error</h3>
+        <pre class="text-sm text-gray-700 whitespace-pre-wrap">${error.message}</pre>
+      </div>
+    `;
+  }
+}
+
+</script>
+
+</body>
+
+</html>
